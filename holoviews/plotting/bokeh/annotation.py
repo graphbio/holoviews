@@ -1,5 +1,5 @@
 import numpy as np
-from bokeh.models import BoxAnnotation
+from bokeh.models import Span
 
 from ...element import HLine, VLine
 from .element import ElementPlot, text_properties, line_properties
@@ -29,14 +29,9 @@ class LineAnnotationPlot(ElementPlot):
 
     def get_data(self, element, ranges=None, empty=False):
         data, mapping = {}, {}
-        if isinstance(element, HLine):
-            mapping['bottom'] = element.data
-            mapping['top'] = element.data
-        elif isinstance(element, VLine):
-            mapping['left'] = element.data
-            mapping['right'] = element.data
+        mapping['dimension'] = 'width' if isinstance(element, HLine) else 'height'
+        mapping['location'] = element.data
         return (data, mapping)
-
 
     def _init_glyph(self, plot, mapping, properties):
         """
@@ -44,11 +39,9 @@ class LineAnnotationPlot(ElementPlot):
         """
         properties.pop('source')
         properties.pop('legend')
-        box = BoxAnnotation(plot=plot, level='overlay',
-                            **dict(mapping, **properties))
+        box = Span(level='overlay', **dict(mapping, **properties))
         plot.renderers.append(box)
         return None, box
-
 
     def get_extents(self, element, ranges=None):
         return None, None, None, None
