@@ -269,6 +269,12 @@ class HeterogeneousColumnTypes(HomogeneousColumnTypes):
                           kdims=['Gender'])
         self.assertEqual(self.table.groupby(['Gender']), grouped)
 
+    def test_dataset_groupby_dynamic(self):
+        grouped_dataset = self.table.groupby('Gender', dynamic=True)
+        self.assertEqual(grouped_dataset['M'],
+                         self.table.select(Gender='M').reindex(['Age']))
+        self.assertEqual(grouped_dataset['F'],
+                         self.table.select(Gender='F').reindex(['Age']))
 
     def test_dataset_add_dimensions_value_ht(self):
         table = self.dataset_ht.add_dimension('z', 1, 0)
@@ -480,3 +486,12 @@ class GridDatasetTest(HomogeneousColumnTypes, ComparisonTestCase):
     def test_dataset_groupby(self):
         self.assertEqual(self.dataset_hm.groupby('x').keys(), list(self.xs))
 
+
+    def test_dataset_groupby_dynamic(self):
+        array = np.random.rand(11, 11)
+        dataset = Dataset({'x':self.xs, 'y':self.y_ints, 'z': array},
+                          kdims=['x', 'y'], vdims=['z'])
+        grouped = dataset.groupby('x', dynamic=True)
+        first = Dataset({'y': self.y_ints, 'z': array[:, 0]},
+                        kdims=['y'], vdims=['z'])
+        self.assertEqual(grouped[0], first)
