@@ -32,6 +32,13 @@ try:
 except ImportError:
     pass
 
+try:
+    import xarray # noqa (Availability import)
+    from .xarray import XArrayInterface # noqa (Conditional API import)
+    datatypes.append('xarray')
+except ImportError:
+    pass
+
 from ..dimension import Dimension
 from ..element import Element
 from ..spaces import HoloMap
